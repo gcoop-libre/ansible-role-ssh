@@ -1,0 +1,40 @@
+---
+- name: Generate User Certificate Authority key pair
+  command: ssh-keygen {{ ssh_keygen_extra_params }} -t rsa -b {{ ssh_keygen_bits_rsa }} -N '{{ ssh_server_user_ca_passphrase }}' -C "User Certificate Authority" -f {{ ssh_ca_path }}/{{ ssh_server_user_ca }}
+  args:
+    creates: "{{ ssh_ca_path }}/{{ ssh_server_user_ca }}"
+  delegate_to: localhost
+  become: no
+  when: ssh_server_user_ca | length > 0
+
+- name: Copy User Certificate Authority public key
+  copy:
+    src: "{{ ssh_ca_path }}/{{ ssh_server_user_ca + '.pub' }}"
+    dest: /etc/ssh/{{ ssh_server_user_ca + '.pub' }}
+    owner: root
+    group: root
+    mode: '0400'
+  when: ssh_server_user_ca | length > 0
+  notify: restart sshd
+
+- include: "{{ role_path }}/tasks/ssh-server-generate-user-key.yml"
+  vars:
+    key_bits: "{{ ssh_keygen_bits_rsa }}"
+    key_user: "{{ ssh_server_user_key.user }}"
+    key_passphrase: "{{ ssh_server_user_key.passphrase | default('') }}"
+    key_path: "{{ ssh_keygen_keys_path }}"
+    key_file: "{{ ssh_server_user_key.file | default(ssh_server_user_key.user) }}"
+    cert_regenerate: "{{ ssh_server_user_key.certificate_regenerate | default(ssh_server_user_certificate_regenerate) }}"
+    cert_command: "{{ ssh_server_user_key.certificate_command | default('') }}"
+    cert_sources: "{{ ssh_server_user_key.certificate_sources | default([]) }}"
+    cert_options: "{{ ssh_server_user_key.certificate_options | default([]) }}"
+    cert_options_available: "{{ ssh_server_user_certificate_options }}"
+    cert_options_default: "{{ ssh_server_user_certificate_default_options }}"
+    cert_validity: "{{ ssh_server_user_key.certificate_validity | default(ssh_server_user_certificate_validity) }}"
+    ca_key: "{% if ssh_server_user_ca | length > 0 %}{{ ssh_ca_path }}/{{ ssh_server_user_ca }}{% endif %}"
+    ca_passphrase: "{{ ssh_server_user_ca_passphrase }}"
+    extra_params: "{{ ssh_keygen_extra_params }}"
+  static: false
+  with_items: "{{ ssh_server_user_keys }}"
+  loop_control:
+    loop_var: ssh_server_user_key

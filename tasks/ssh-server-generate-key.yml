@@ -1,0 +1,51 @@
+---
+- name: "{{ key_type | upper }}: Generate host key pair"
+  command: ssh-keygen {{ extra_params }} -t {{ key_type }} {% if key_bits | length > 0 %}-b {{ key_bits }}{% endif %} -N '' -C "{{ hostname_fqdn }} - {{ key_type | upper }}" -f {{ key_path }}/{{ key_file }}
+  args:
+    creates: "{{ key_path }}/{{ key_file }}"
+  delegate_to: localhost
+  become: no
+
+- name: "{{ key_type | upper }}: Copy private host key"
+  copy:
+    src: "{{ key_path }}/{{ key_file }}"
+    dest: /etc/ssh/{{ key_file }}
+    owner: root
+    group: root
+    mode: '0400'
+  notify: restart sshd
+
+- name: "{{ key_type | upper }}: Copy public host key"
+  copy:
+    src: "{{ key_path }}/{{ key_file + '.pub' }}"
+    dest: /etc/ssh/{{ key_file + '.pub' }}
+    owner: root
+    group: root
+    mode: '0444'
+  notify: restart sshd
+
+- name: "{{ key_type | upper }}: Remove old host certificate"
+  file:
+    path: "{{ key_path }}/{{ key_file + '-cert.pub' }}"
+    state: absent
+  delegate_to: localhost
+  become: no
+  when: ca_key | length > 0 and cert_regenerate
+
+- name: "{{ key_type | upper }}: Sign host key"
+  shell: ssh-keygen -h -s {{ ca_key }} -P '{{ ca_passphrase }}' -I "{{ hostname_fqdn + '-' + ansible_date_time.date + '-' + key_type | upper }}" -n "{{ cert_principals }}" {% if cert_validity | length > 0 %}-V +{{ cert_validity }}{% endif %} -C "{{ hostname_fqdn }} - {{ key_type | upper }}" {{ key_path }}/{{ key_file }}
+  args:
+    creates: "{{ key_path }}/{{ key_file + '-cert.pub' }}"
+  delegate_to: localhost
+  become: no
+  when: ca_key | length > 0
+
+- name: "{{ key_type | upper }}: Copy public host certificate"
+  copy:
+    src: "{{ key_path }}/{{ key_file + '-cert.pub' }}"
+    dest: /etc/ssh/{{ key_file + '-cert.pub' }}
+    owner: root
+    group: root
+    mode: '0444'
+  when: ca_key | length > 0
+  notify: restart sshd

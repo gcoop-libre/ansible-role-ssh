@@ -1,0 +1,12 @@
+---
+- name: Determine SSH version
+  set_fact:
+    ssh_legacy: (ansible_distribution == 'Debian' and ansible_distribution_version < '8') or (ansible_distribution == 'Ubuntu' and ansible_distribution_version < '14.04')
+
+- include: tasks/ssh-client.yml
+  static: false
+  when: ssh_client
+
+- include: tasks/ssh-server.yml
+  static: false
+  when: ssh_server

@@ -1,0 +1,12 @@
+---
+- name: Generate ssh-keygen command for the remote SSH version
+  set_fact:
+    ssh_keygen_extra_params: "{% if not ssh_legacy %}-o -a {{ ssh_keygen_iterations }}{% endif %}"
+
+- name: Ensure Keys directory
+  file:
+    path: "{{ ssh_keygen_keys_path }}"
+    mode: '0700'
+    state: directory
+  delegate_to: localhost
+  become: no

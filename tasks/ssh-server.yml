@@ -1,0 +1,43 @@
+---
+- include: "{{ role_path }}/tasks/ssh-server-moduli.yml"
+  static: false
+  when: ssh_server_regenerate_moduli
+
+- include: "{{ role_path }}/tasks/ssh-keys-common.yml"
+  static: false
+
+- include: "{{ role_path }}/tasks/ssh-server-keys.yml"
+  static: false
+  when: ssh_server_regenerate_keys
+
+- include: "{{ role_path }}/tasks/ssh-server-user-keys.yml"
+  static: false
+  when: ssh_server_regenerate_user_keys
+
+- include: "{{ role_path }}/tasks/ssh-server-revoke-user-keys.yml"
+  static: false
+  when: ssh_server_regenerate_revoked_keys
+
+- name: Create SSH server banner
+  copy:
+    dest: "{{ ssh_server_banner_path }}"
+    content: "{{ ssh_server_banner }}"
+    owner: root
+    group: root
+    mode: '0600'
+  when: ssh_server_banner | length > 0
+
+- name: Verify Revoked Keys existence
+  stat:
+    path: /etc/ssh/revoked_keys
+  register: ssh_server_revoked_keys_exists
+
+- name: Add SSH server config
+  template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: '0600'
+    validate: /usr/sbin/sshd -T -f %s
+  notify: restart sshd

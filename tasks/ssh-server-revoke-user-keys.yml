@@ -1,0 +1,26 @@
+---
+- name: "Revoked Keys: Generate list"
+  template:
+    src: revoked_keys.j2
+    dest: "{{ ssh_server_revoked_keys_path }}/revoked_keys"
+    mode: '0600'
+  register: ssh_server_revoked_keys_generation
+  delegate_to: localhost
+  become: no
+
+- name: "Revoked Keys: Generate KRL"
+  command: ssh-keygen -k {% if ssh_server_user_ca %}-s {{ ssh_ca_path }}/{{ ssh_server_user_ca }}{% endif %} -f {{ ssh_server_revoked_keys_path }}/revoked_keys_krl {{ ssh_server_revoked_keys_path }}/revoked_keys
+  args:
+    creates: "{{ ssh_server_revoked_keys_path }}/revoked_keys_krl"
+  delegate_to: localhost
+  become: no
+  when: ssh_server_revoked_keys_generation | changed
+
+- name: "Revoked Keys: Copy KRL"
+  copy:
+    src: "{{ ssh_server_revoked_keys_path }}/revoked_keys_krl"
+    dest: /etc/ssh/revoked_keys
+    owner: root
+    group: root
+    mode: '0444'
+  notify: restart sshd
