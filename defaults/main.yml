@@ -1,0 +1,99 @@
+---
+ssh_ca_path: "{{ ssh_role_files }}"
+
+ssh_server_moduli_path: "{{ ssh_role_files }}"
+
+ssh_keygen_keys_path: "{{ ssh_role_files }}/{{ inventory_hostname }}"
+ssh_keygen_iterations: 64
+ssh_keygen_bits_rsa: 4096
+ssh_keygen_bits_ecdsa: 384
+
+ssh_server_revoked_keys_path: "{{ ssh_role_files }}"
+
+ssh_client: False
+
+ssh_client_ipv6_enable: False
+ssh_client_remote_hosts: []
+ssh_client_ports:
+  - 22
+ssh_client_identities: []
+ssh_client_cbc_required: False
+ssh_client_weak_hmac: False
+ssh_client_weak_kex: False
+ssh_client_password_login: False
+ssh_client_roaming: False
+
+ssh_server: False
+
+ssh_server_regenerate_moduli: False
+ssh_server_regenerate_keys: False
+ssh_server_regenerate_user_keys: False
+ssh_server_regenerate_revoked_keys: False
+
+ssh_server_moduli_bits: 4096
+
+ssh_server_ca: ''
+ssh_server_ca_passphrase: ''
+ssh_server_certificate_validity: ''
+ssh_server_certificate_regenerate: False
+
+ssh_server_user_ca: ''
+ssh_server_user_ca_passphrase: ''
+ssh_server_user_certificate_regenerate: False
+ssh_server_user_certificate_agent_forwarding: False
+ssh_server_user_certificate_port_forwarding: False
+ssh_server_user_certificate_pty: True
+ssh_server_user_certificate_user_rc: False
+ssh_server_user_certificate_x11_forwarding: False
+ssh_server_user_certificate_validity: ''
+ssh_server_user_keys: []
+# Available properties
+# - user: username
+#   passphrase: h4rdPa55phras3 (Optional)
+#   certificate_regenerate: "{{ ssh_server_user_certificate_regenerate }}" (Default)
+#   certificate_command: 'echo No login'
+#   certificate_sources:
+#     - 192.168.1.10
+#   certificate_options:
+#     agent-forwarding: "{{ ssh_server_user_certificate_agent_forwarding }}" (Default)
+#     port-forwarding: "{{ ssh_server_user_certificate_port_forwarding }}" (Default)
+#     pty: "{{ ssh_server_user_certificate_pty }}" (Default)
+#     user-rc: "{{ ssh_server_user_certificate_user_rc }}" (Default)
+#     x11-forwarding: "{{ ssh_server_user_certificate_x11_forwarding }}" (Default)
+#   certificate_validity: "{{ ssh_server_user_certificate_validity }}" (Default)
+#   file: username (Default)
+
+ssh_server_revoked_keys: []
+ssh_server_revoked_sha1: []
+ssh_server_revoked_certificates: []
+ssh_server_revoked_serials: []
+
+ssh_server_root_key_login: False
+ssh_server_ports:
+  - 22
+ssh_server_ipv6_enable: False
+ssh_server_listen_to:
+  - 0.0.0.0
+ssh_server_host_key_rsa: True
+ssh_server_host_key_dsa: False
+ssh_server_host_key_ecdsa: True
+ssh_server_host_key_ed25519: False
+ssh_server_cbc_required: False
+ssh_server_weak_hmac: False
+ssh_server_weak_kex: False
+ssh_server_max_auth_retries: 2
+ssh_server_use_pam: False
+ssh_server_deny_users: []
+ssh_server_allow_users: []
+ssh_server_deny_groups: []
+ssh_server_allow_groups: []
+ssh_server_client_alive_interval: 600
+ssh_server_client_alive_count: 3
+ssh_server_tcp_forwarding: False
+ssh_server_agent_forwarding: False
+ssh_server_motd: False
+ssh_server_last_log: False
+ssh_server_banner: ''
+ssh_server_debian_banner: False
+ssh_server_sftp: False
+ssh_server_sftp_chroot_dir: /home/%u
