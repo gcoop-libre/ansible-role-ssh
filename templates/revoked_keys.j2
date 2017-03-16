@@ -1,0 +1,20 @@
+{% if ssh_server_revoked_keys | length > 0 %}
+{% for revoked_key in ssh_server_revoked_keys %}
+key: {{ revoked_key }}
+{% endfor %}
+{% endif %}
+{% if ssh_server_revoked_sha1 | length > 0 %}
+{% for revoked_sha1 in ssh_server_revoked_sha1 %}
+sha1: {{ revoked_sha1 }}
+{% endfor %}
+{% endif %}
+{% if ssh_server_revoked_certificates | length > 0 %}
+{% for revoked_cert in ssh_server_revoked_certificates %}
+id: {{ revoked_cert }}
+{% endfor %}
+{% endif %}
+{% if ssh_server_revoked_serials | length > 0 %}
+{% for revoked_serial in ssh_server_revoked_serials %}
+serial: {{ revoked_serial }}
+{% endfor %}
+{% endif %}
