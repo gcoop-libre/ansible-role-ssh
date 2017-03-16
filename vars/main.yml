@@ -1,0 +1,76 @@
+---
+ssh_role_files: "{{ role_path }}/files"
+
+ssh_server_host_keys:
+  - type: rsa
+    generate: "{{ ssh_server_host_key_rsa }}"
+    bits: "{{ ssh_keygen_bits_rsa }}"
+    file: ssh_host_rsa_key
+  - type: dsa
+    generate: "{{ ssh_server_host_key_dsa }}"
+    bits: 1024
+    file: ssh_host_dsa_key
+  - type: ecdsa
+    generate: "{{ ssh_server_host_key_ecdsa }}"
+    bits: "{{ ssh_keygen_bits_ecdsa }}"
+    file: ssh_host_ecdsa_key
+  - type: ed25519
+    generate: "{{ ssh_server_host_key_ed25519 }}"
+    bits: ''
+    file: ssh_host_ed25519_key
+
+ssh_server_user_certificate_options:
+  - agent-forwarding
+  - port-forwarding
+  - pty
+  - user-rc
+  - x11-forwarding
+ssh_server_user_certificate_default_options:
+  agent-forwarding: "{{ ssh_server_user_certificate_agent_forwarding }}"
+  port-forwarding: "{{ ssh_server_user_certificate_port_forwarding }}"
+  pty: "{{ ssh_server_user_certificate_pty }}"
+  user-rc: "{{ ssh_server_user_certificate_user_rc }}"
+  x11-forwarding: "{{ ssh_server_user_certificate_x11_forwarding }}"
+
+ssh_server_banner_path: /etc/ssh/banner
+
+ssh_ciphers_53_default:
+  - aes256-ctr
+  - aes192-ctr
+  - aes128-ctr
+ssh_ciphers_53_weak: "{{ ssh_ciphers_53_default + ['aes256-cbc', 'aes192-cbc', 'aes128-cbc'] }}"
+ssh_ciphers_66_default:
+  - chacha20-poly1305@openssh.com
+  - aes256-gcm@openssh.com
+  - aes128-gcm@openssh.com
+  - aes256-ctr
+  - aes192-ctr
+  - aes128-ctr
+ssh_ciphers_66_weak: "{{ ssh_ciphers_66_default + ['aes256-cbc', 'aes192-cbc', 'aes128-cbc'] }}"
+
+ssh_macs_59_default:
+  - hmac-sha2-512
+  - hmac-sha2-256
+  - hmac-ripemd160
+ssh_macs_59_weak: "{{ ssh_macs_59_default + ['hmac-sha1'] }}"
+ssh_macs_66_default:
+  - hmac-sha2-512-etm@openssh.com
+  - hmac-sha2-256-etm@openssh.com
+  - hmac-ripemd160-etm@openssh.com
+  - umac-128-etm@openssh.com
+  - hmac-sha2-512
+  - hmac-sha2-256
+  - hmac-ripemd160
+  - umac-128@openssh.com
+ssh_macs_66_weak: "{{ ssh_macs_66_default + ['hmac-sha1'] }}"
+
+ssh_kex_59_default:
+  - diffie-hellman-group-exchange-sha256
+ssh_kex_59_weak: "{{ ssh_kex_59_default + ['diffie-hellman-group14-sha1', 'diffie-hellman-group-exchange-sha1', 'diffie-hellman-group1-sha1'] }}"
+ssh_kex_66_default:
+  - curve25519-sha256@libssh.org
+  - diffie-hellman-group-exchange-sha256
+ssh_kex_66_weak: "{{ ssh_kex_66_default + ['diffie-hellman-group14-sha1', 'diffie-hellman-group-exchange-sha1', 'diffie-hellman-group1-sha1'] }}"
+
+ssh_ps53: 'yes'
+ssh_ps59: 'sandbox'
