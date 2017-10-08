@@ -1,4 +1,12 @@
 ---
+- name: "Revoked Keys: Ensure directory"
+  file:
+    path: "{{ ssh_server_revoked_keys_path }}"
+    mode: '0700'
+    state: directory
+  delegate_to: localhost
+  become: no
+
 - name: "Revoked Keys: Generate list"
   template:
     src: revoked_keys.j2

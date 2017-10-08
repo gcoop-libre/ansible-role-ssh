@@ -1,4 +1,12 @@
 ---
+- name: Ensure Moduli directory
+  file:
+    path: "{{ ssh_server_moduli_path }}"
+    mode: '0700'
+    state: directory
+  delegate_to: localhost
+  become: no
+
 - name: "Moduli: Generate candidates"
   command: ssh-keygen -G {{ ssh_server_moduli_path }}/moduli-candidates -b {{ ssh_server_moduli_bits }}
   args:
