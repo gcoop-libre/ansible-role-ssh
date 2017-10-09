@@ -27,6 +27,11 @@
     mode: '0600'
   when: ssh_server_banner | length > 0
 
+- name: Verify Trusted User CA Keys existence
+  stat:
+    path: /etc/ssh/trusted_user_ca_keys
+  register: ssh_server_trusted_user_ca_keys_exists
+
 - name: Verify Revoked Keys existence
   stat:
     path: /etc/ssh/revoked_keys

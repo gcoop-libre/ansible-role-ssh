@@ -52,8 +52,8 @@ HostCertificate /etc/ssh/ssh_host_ed25519_key-cert.pub
 {% endif %}
 {% endif %}
 
-{% if ssh_server_user_ca %}
-TrustedUserCAKeys /etc/ssh/{{ ssh_server_user_ca + '.pub' }}
+{% if ssh_server_trusted_user_ca_keys_exists.stat.exists | default(False) %}
+TrustedUserCAKeys /etc/ssh/trusted_user_ca_keys
 {% endif %}
 
 {% if ssh_server_revoked_keys_exists.stat.exists | default(False) %}
