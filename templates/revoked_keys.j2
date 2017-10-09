@@ -9,12 +9,22 @@ sha1: {{ revoked_sha1 }}
 {% endfor %}
 {% endif %}
 {% if ssh_server_revoked_certificates | length > 0 %}
-{% for revoked_cert in ssh_server_revoked_certificates %}
+{% for ssh_server_revoked_certificate_ca, ssh_server_revoked_certificate_value in ssh_server_revoked_certificates.iteritems() %}
+{% if ssh_server_revoked_certificate_value | length > 0 %}
+# {{ ssh_server_revoked_certificate_ca }}
+{% for revoked_cert in ssh_server_revoked_certificate_value %}
 id: {{ revoked_cert }}
 {% endfor %}
 {% endif %}
+{% endfor %}
+{% endif %}
 {% if ssh_server_revoked_serials | length > 0 %}
-{% for revoked_serial in ssh_server_revoked_serials %}
+{% for ssh_server_revoked_serial_ca, ssh_server_revoked_serial_value in ssh_server_revoked_serials.iteritems() %}
+{% if ssh_server_revoked_serial_value | length > 0 %}
+# {{ ssh_server_revoked_serial_ca }}
+{% for revoked_serial in ssh_server_revoked_serial_value %}
 serial: {{ revoked_serial }}
+{% endfor %}
+{% endif %}
 {% endfor %}
 {% endif %}
