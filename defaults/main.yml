@@ -37,8 +37,12 @@ ssh_server_ca_passphrase: ''
 ssh_server_certificate_validity: ''
 ssh_server_certificate_regenerate: False
 
-ssh_server_user_ca: ''
-ssh_server_user_ca_passphrase: ''
+ssh_server_user_cas: {}
+# Available properties
+# ca_name:
+#   passphrase: '' (Default)
+#   path: '' (Default)
+#   file: ca_name (Default)
 ssh_server_user_certificate_regenerate: False
 ssh_server_user_certificate_agent_forwarding: False
 ssh_server_user_certificate_port_forwarding: False
@@ -50,6 +54,7 @@ ssh_server_user_keys: []
 # Available properties
 # - user: username
 #   passphrase: h4rdPa55phras3 (Optional)
+#   certificate_authority: ca_name
 #   certificate_regenerate: "{{ ssh_server_user_certificate_regenerate }}" (Default)
 #   certificate_command: 'echo No login'
 #   certificate_sources:
@@ -65,8 +70,12 @@ ssh_server_user_keys: []
 
 ssh_server_revoked_keys: []
 ssh_server_revoked_sha1: []
-ssh_server_revoked_certificates: []
-ssh_server_revoked_serials: []
+ssh_server_revoked_certificates: {}
+# Available properties
+# ca_name: []
+ssh_server_revoked_serials: {}
+# Available properties
+# ca_name: []
 
 ssh_server_root_key_login: False
 ssh_server_ports:
