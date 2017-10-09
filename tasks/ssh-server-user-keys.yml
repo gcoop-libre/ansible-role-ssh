@@ -1,20 +1,36 @@
 ---
-- name: Generate User Certificate Authority key pair
-  command: ssh-keygen {{ ssh_keygen_extra_params }} -t rsa -b {{ ssh_keygen_bits_rsa }} -N '{{ ssh_server_user_ca_passphrase }}' -C "User Certificate Authority" -f {{ ssh_ca_path }}/{{ ssh_server_user_ca }}
-  args:
-    creates: "{{ ssh_ca_path }}/{{ ssh_server_user_ca }}"
-  delegate_to: localhost
-  become: no
-  when: ssh_server_user_ca | length > 0
+- name: Define empty Trusted User CA Keys
+  set_fact:
+    ssh_server_user_ca_keys: []
 
-- name: Copy User Certificate Authority public key
-  copy:
-    src: "{{ ssh_ca_path }}/{{ ssh_server_user_ca + '.pub' }}"
-    dest: /etc/ssh/{{ ssh_server_user_ca + '.pub' }}
-    owner: root
-    group: root
+- include: "{{ role_path }}/tasks/ssh-server-generate-user-ca-key.yml"
+  vars:
+    key_user_ca: "{{ ssh_server_user_ca.key }}"
+    key_bits: "{{ ssh_keygen_bits_rsa }}"
+    key_passphrase: "{{ ssh_server_user_ca.value.passphrase | default('') }}"
+    key_path: "{{ ssh_server_user_ca.value.path | default(ssh_ca_path) }}"
+    key_file: "{{ ssh_server_user_ca.value.file | default(ssh_server_user_ca.key) }}"
+    extra_params: "{{ ssh_keygen_extra_params }}"
+  static: false
+  with_dict: "{{ ssh_server_user_cas }}"
+  loop_control:
+    loop_var: ssh_server_user_ca
+    label: "{{ ssh_server_user_ca.key }}"
+  when: ssh_server_user_cas | length > 0
+
+- name: Generate Trusted User CA Keys file
+  template:
+    src: trusted_user_ca_keys.j2
+    dest: /etc/ssh/trusted_user_ca_keys
     mode: '0400'
-  when: ssh_server_user_ca | length > 0
+  when: ssh_server_user_ca_keys | length > 0
+  notify: restart sshd
+
+- name: Remove old Trusted User CA Keys file
+  file:
+    path: /etc/ssh/trusted_user_ca_keys
+    state: absent
+  when: ssh_server_user_ca_keys | length == 0
   notify: restart sshd
 
 - include: "{{ role_path }}/tasks/ssh-server-generate-user-key.yml"
@@ -31,10 +47,11 @@
     cert_options_available: "{{ ssh_server_user_certificate_options }}"
     cert_options_default: "{{ ssh_server_user_certificate_default_options }}"
     cert_validity: "{{ ssh_server_user_key.certificate_validity | default(ssh_server_user_certificate_validity) }}"
-    ca_key: "{% if ssh_server_user_ca | length > 0 %}{{ ssh_ca_path }}/{{ ssh_server_user_ca }}{% endif %}"
-    ca_passphrase: "{{ ssh_server_user_ca_passphrase }}"
+    ca_key: "{% if ((ssh_server_user_key.certificate_authority | default('') | length > 0) and (ssh_server_user_cas[ssh_server_user_key.certificate_authority] is defined)) %}{{ ssh_server_user_cas[ssh_server_user_key.certificate_authority].path | default(ssh_ca_path) }}/{{ ssh_server_user_cas[ssh_server_user_key.certificate_authority].file | default(ssh_server_user_key.certificate_authority) }}{% endif %}"
+    ca_passphrase: "{% if ((ssh_server_user_key.certificate_authority | default('') | length > 0) and (ssh_server_user_cas[ssh_server_user_key.certificate_authority] is defined)) %}{{ ssh_server_user_cas[ssh_server_user_key.certificate_authority].passphrase | default('') }}{% endif %}"
     extra_params: "{{ ssh_keygen_extra_params }}"
   static: false
   with_items: "{{ ssh_server_user_keys }}"
   loop_control:
     loop_var: ssh_server_user_key
+    label: "{{ ssh_server_user_key.user }}"

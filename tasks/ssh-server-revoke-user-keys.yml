@@ -1,20 +1,87 @@
 ---
-- name: "Revoked Keys: Generate list"
-  template:
-    src: revoked_keys.j2
-    dest: "{{ ssh_server_revoked_keys_path }}/revoked_keys"
-    mode: '0600'
-  register: ssh_server_revoked_keys_generation
+- name: "Revoked Keys: Ensure directory"
+  file:
+    path: "{{ ssh_server_revoked_keys_path }}"
+    mode: '0700'
+    state: directory
   delegate_to: localhost
   become: no
 
-- name: "Revoked Keys: Generate KRL"
-  command: ssh-keygen -k {% if ssh_server_user_ca %}-s {{ ssh_ca_path }}/{{ ssh_server_user_ca }}{% endif %} -f {{ ssh_server_revoked_keys_path }}/revoked_keys_krl {{ ssh_server_revoked_keys_path }}/revoked_keys
-  args:
-    creates: "{{ ssh_server_revoked_keys_path }}/revoked_keys_krl"
+- name: "Revoked Keys: Generate list"
+  template:
+    src: revoked_keys.j2
+    dest: "/etc/ssh/revoked_keys_list"
+    mode: '0600'
+  register: ssh_server_revoked_keys_generation
+
+- name: "Revoked Keys: Generate list of keys and hashes"
+  template:
+    src: revoked_keys_keys_hashes.j2
+    dest: "{{ ssh_server_revoked_keys_path }}/revoked_keys_keys_hashes"
+    mode: '0600'
   delegate_to: localhost
   become: no
   when: ssh_server_revoked_keys_generation | changed
+
+- name: "Revoked Keys: Generate list of certificates"
+  template:
+    src: revoked_keys_certificates.j2
+    dest: "{{ ssh_server_revoked_keys_path }}/revoked_keys_certificates_{{ ssh_server_revoked_certificate.key }}"
+    mode: '0600'
+  with_dict: "{{ ssh_server_revoked_certificates }}"
+  loop_control:
+    loop_var: ssh_server_revoked_certificate
+    label: "{{ ssh_server_revoked_certificate.key }}"
+  delegate_to: localhost
+  become: no
+  when: ssh_server_revoked_keys_generation | changed
+
+- name: "Revoked Keys: Generate list of serials"
+  template:
+    src: revoked_keys_serials.j2
+    dest: "{{ ssh_server_revoked_keys_path }}/revoked_keys_serials_{{ ssh_server_revoked_serial.key }}"
+    mode: '0600'
+  with_dict: "{{ ssh_server_revoked_serials }}"
+  loop_control:
+    loop_var: ssh_server_revoked_serial
+    label: "{{ ssh_server_revoked_serial.key }}"
+  delegate_to: localhost
+  become: no
+  when: ssh_server_revoked_keys_generation | changed
+
+- name: "Revoked Keys: Remove old KRL"
+  file:
+    path: "{{ ssh_server_revoked_keys_path }}/revoked_keys_krl"
+    state: absent
+  delegate_to: localhost
+  become: no
+  when: ssh_server_revoked_keys_generation | changed
+
+- name: "Revoked Keys: Add keys and hashes to KRL"
+  command: ssh-keygen -k -f {{ ssh_server_revoked_keys_path }}/revoked_keys_krl {{ ssh_server_revoked_keys_path }}/revoked_keys_keys_hashes
+  delegate_to: localhost
+  become: no
+  when: ssh_server_revoked_keys_generation | changed
+
+- name: "Revoked Keys: Add certificates to KRL"
+  command: ssh-keygen -k -u -s {{ ssh_server_user_cas[ssh_server_revoked_certificate.key].path | default(ssh_ca_path) }}/{{ ssh_server_user_cas[ssh_server_revoked_certificate.key].file | default(ssh_server_revoked_certificate.key) }} -f {{ ssh_server_revoked_keys_path }}/revoked_keys_krl {{ ssh_server_revoked_keys_path }}/revoked_keys_certificates_{{ ssh_server_revoked_certificate.key }}
+  with_dict: "{{ ssh_server_revoked_certificates }}"
+  loop_control:
+    loop_var: ssh_server_revoked_certificate
+    label: "{{ ssh_server_revoked_certificate.key }}"
+  delegate_to: localhost
+  become: no
+  when: ssh_server_revoked_keys_generation | changed and ssh_server_user_cas[ssh_server_revoked_certificate.key] is defined
+
+- name: "Revoked Keys: Add serials to KRL"
+  command: ssh-keygen -k -u -s {{ ssh_server_user_cas[ssh_server_revoked_serial.key].path | default(ssh_ca_path) }}/{{ ssh_server_user_cas[ssh_server_revoked_serial.key].file | default(ssh_server_revoked_serial.key) }} -f {{ ssh_server_revoked_keys_path }}/revoked_keys_krl {{ ssh_server_revoked_keys_path }}/revoked_keys_serials_{{ ssh_server_revoked_serial.key }}
+  with_dict: "{{ ssh_server_revoked_serials }}"
+  loop_control:
+    loop_var: ssh_server_revoked_serial
+    label: "{{ ssh_server_revoked_serial.key }}"
+  delegate_to: localhost
+  become: no
+  when: ssh_server_revoked_keys_generation | changed and ssh_server_user_cas[ssh_server_revoked_serial.key] is defined
 
 - name: "Revoked Keys: Copy KRL"
   copy:

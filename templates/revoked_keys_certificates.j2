@@ -1,0 +1,5 @@
+{% if ssh_server_revoked_certificate.value | length > 0 %}
+{% for revoked_cert in ssh_server_revoked_certificate.value %}
+id: {{ revoked_cert }}
+{% endfor %}
+{% endif %}

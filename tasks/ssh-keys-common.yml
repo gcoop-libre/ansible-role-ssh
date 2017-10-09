@@ -10,3 +10,11 @@
     state: directory
   delegate_to: localhost
   become: no
+
+- name: Ensure Certificate Authority Keys directory
+  file:
+    path: "{{ ssh_ca_path }}"
+    mode: '0700'
+    state: directory
+  delegate_to: localhost
+  become: no

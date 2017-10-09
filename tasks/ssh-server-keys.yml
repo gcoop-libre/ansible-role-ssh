@@ -34,4 +34,5 @@
   with_items: "{{ ssh_server_host_keys }}"
   loop_control:
     loop_var: ssh_server_host_key
+    label: "{{ ssh_server_host_key.type }}"
   when: ssh_server_host_key.generate
