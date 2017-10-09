@@ -27,7 +27,11 @@ Path where the `moduli` and `moduli candidates` will be stored.
 
     ssh_keygen_keys_path: "{{ ssh_role_files }}/{{ inventory_hostname }}"
 
-Path where the Host and User public and private keys will be stored. The Host and User certificates will be stored there too.
+Path where the Host public and private keys will be stored. The Host certificates will be stored there too.
+
+    ssh_keygen_user_keys_path: "{{ ssh_role_files }}"
+
+Path where the User public and private keys will be stored. The User certificates will be stored there too.
 
     ssh_keygen_iterations: 64
 

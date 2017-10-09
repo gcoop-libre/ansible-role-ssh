@@ -4,6 +4,7 @@ ssh_ca_path: "{{ ssh_role_files }}"
 ssh_server_moduli_path: "{{ ssh_role_files }}"
 
 ssh_keygen_keys_path: "{{ ssh_role_files }}/{{ inventory_hostname }}"
+ssh_keygen_user_keys_path: "{{ ssh_role_files }}"
 ssh_keygen_iterations: 64
 ssh_keygen_bits_rsa: 4096
 ssh_keygen_bits_ecdsa: 384
