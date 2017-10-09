@@ -126,13 +126,17 @@ Validity of the generated host Certificate.
 
 Force the generation of a new certificate for the host.
 
-    ssh_server_user_ca: ''
+    ssh_server_user_cas:
+      ca_name:
+        passphrase: '' (Default)
+        path: '' (Default)
+        file: ca_name (Default)
 
-Filename of the Certificate Authority keys that will be used to sign user keys. You should leave it empty if you don't want to use user certificates.
+List of User Certificate Authorities which keys should be locally created and/or configured on the OpenSSH server to authenticate users using OpenSSH Certificates. The key of each dictionary is the name of the Certificate Authority and it may content the following properties:
 
-    ssh_server_user_ca_passphrase: ''
-
-Passphrase for the private key of the user Certificate Authority.
+`passphrase`: Passphrase for the private key of the user Certificate Authority.
+`path`: Path where the keys should be stored when created.
+`file`: Filename of the user Certificate Authority private key. The public key would be named as `file`.pub.
 
     ssh_server_user_certificate_regenerate: False
 
@@ -165,6 +169,7 @@ Validity of the generated user Certificate. This value could be overriden per us
     ssh_server_user_keys:
       - user: username
         passphrase: h4rdPa55phras3
+        certificate_authority: ca_name
         certificate_regenerate: "{{ ssh_server_user_certificate_regenerate }}"
         certificate_command: 'echo No login'
         certificate_sources:
@@ -182,6 +187,7 @@ List of users which keys will be created by the rol. Each dictionary of the list
 
 * `user` indicates the username which keys will be created.
 * If the `passphrase` property is used, the value will be user as passphrase for the private key.
+* `certificate_authority` indicates which User Certificate Authority should be used to sign the certificate.
 * `certificate_regenerate` allows you to override the value of `ssh_server_user_certificate_regenerate`.
 * `certificate_command` force the execution of the specified command.
 * `certificate_sources` restrict the source addresses from which the certificate could be used.
@@ -197,13 +203,15 @@ List of user public keys to be revoked to access the host.
 
 List of SHA1 hashed of the user keys to be revoked to access the host.
 
-    ssh_server_revoked_certificates: []
+    ssh_server_revoked_certificates:
+      ca_name: []
 
-List of IDs of the user keys and certificates to be revoked to access the host.
+Certificates to be revoked to access the host. The property should be a dictionary with the User Certificate Authority name as key and a list of certificate's IDs signed with that Certificate Authority as value.
 
-    ssh_server_revoked_serials: []
+    ssh_server_revoked_serials:
+      ca_name: []
 
-List of serial numbers of the user certificates to be revoked to access the host.
+Certificates to be revoked to access the host. The property should be a dictionary with the User Certificate Authority name as key and a list of certificate's serial numbers signed with that Certificate Authority as value.
 
     ssh_server_root_key_login: False
 
