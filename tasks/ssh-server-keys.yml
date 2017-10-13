@@ -17,7 +17,7 @@
   register: ssh_server_hostname_principals
   changed_when: False
 
-- include: "{{ role_path }}/tasks/ssh-server-generate-key.yml"
+- include_tasks: ssh-server-generate-key.yml
   vars:
     hostname_fqdn: "{{ ssh_server_hostname_fqdn.stdout }}"
     key_type: "{{ ssh_server_host_key.type }}"
@@ -30,7 +30,6 @@
     ca_key: "{% if ssh_server_ca | length > 0 %}{{ ssh_ca_path }}/{{ ssh_server_ca }}{% endif %}"
     ca_passphrase: "{{ ssh_server_ca_passphrase }}"
     extra_params: "{{ ssh_keygen_extra_params }}"
-  static: false
   with_items: "{{ ssh_server_host_keys }}"
   loop_control:
     loop_var: ssh_server_host_key

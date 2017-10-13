@@ -1,21 +1,16 @@
 ---
-- include: "{{ role_path }}/tasks/ssh-server-moduli.yml"
-  static: false
+- include_tasks: ssh-server-moduli.yml
   when: ssh_server_regenerate_moduli
 
-- include: "{{ role_path }}/tasks/ssh-keys-common.yml"
-  static: false
+- include_tasks: ssh-keys-common.yml
 
-- include: "{{ role_path }}/tasks/ssh-server-keys.yml"
-  static: false
+- include_tasks: ssh-server-keys.yml
   when: ssh_server_regenerate_keys
 
-- include: "{{ role_path }}/tasks/ssh-server-user-keys.yml"
-  static: false
+- include_tasks: ssh-server-user-keys.yml
   when: ssh_server_regenerate_user_keys
 
-- include: "{{ role_path }}/tasks/ssh-server-revoke-user-keys.yml"
-  static: false
+- include_tasks: ssh-server-revoke-user-keys.yml
   when: ssh_server_regenerate_revoked_keys
 
 - name: Create SSH server banner
