@@ -57,19 +57,6 @@ This property enables the configuration of the host as an OpenSSH client.
 
 This property enables the use of IPv6 on the OpenSSH client.
 
-    ssh_client_remote_hosts: []
-
-List of hosts which connection will be affected by this configuration.
-
-    ssh_client_ports:
-      - 22
-
-Default port of the outgoing connections.
-
-    ssh_client_identities: []
-
-Restrict the identity files that will be used for connections.
-
     ssh_client_cbc_required: False
 
 Enables using `ciphers` with (`insecure`) CBC algorithms on the OpenSSH client.
@@ -86,9 +73,76 @@ Enables using `weak` key exchange algorithms on the OpenSSH client.
 
 Enables interactive login on the OpenSSH client.
 
+    ssh_client_control_master: auto
+
+Enables the sharing of multiple sessions over a single network connection. Valid values are: `yes`, `no`, `ask`, `auto`, `autoask`.
+
+    ssh_client_control_path: "~/.ssh/.master-%r@%h:%p"
+
+Specify the path to the control socket used for connection sharing. An empty string will disable connection sharing.
+
+    ssh_client_escape_char: ~
+
+Sets the escape character. The value should be a single character or `none` to disable the escape character entirely (making the connection transparent for binary data).
+
+    ssh_client_visual_host_key: True
+
+If this property is set to `True`, an ASCII art representation of the remote host key fingerprint is printed in addition to the fingerprint string at login and for unknown host keys.
+
     ssh_client_roaming: False
 
 Enables experimental client roaming. This is known to cause potential issues with secrets being disclosed to malicious servers and defaults to being disabled.
+
+    ssh_client_extra_configs:
+      LogLevel: FATAL
+
+Dictionary of OpenSSH configurations that does not have a property on this role. The OpenSSH option name should be used as key of the item and the desired value as its value.
+
+    ssh_client_remote_hosts:
+      - name: hostname
+        hostname: 192.168.10.10
+        port: 22
+        host_key_alias: hostname.example.com
+        strict_host_key: True
+        user: debian
+        forward_agent: False
+        identity_file: id_rsa
+        certificate_file: id_rsa-cert.pub
+        local_forwards:
+          - local_port: 1234
+            local_address: ''
+            remote_port: 80
+            remote_address: 127.0.0.1
+        remote_forwards:
+          - remote_port: 1234
+            remote_address: ''
+            local_port: 80
+            local_address: 127.0.0.1
+        dynamic_forwards:
+          - local_port: 1234
+            local_address: ''
+        extra_configs:
+          LogLevel: FATAL
+        aliases:
+          - web.example.com
+          - www.example.com
+
+List of connections to remote OpenSSH servers that should be available on the global OpenSSH configuration. Each dictionary of the list has the following properties:
+
+* `name`: Identifies the host or hosts whose connections will be configured. A single ‘\*’ as a pattern can be used to provide global defaults for all hosts.  The host is usually the hostname argument given on the command line. A pattern entry may be negated by prefixing it with an exclamation mark (‘!’).  If a negated entry is matched, then the Host entry is ignored, regardless of whether any other patterns on the line match.  Negated matches are therefore useful to provide exceptions for wildcard matches.
+* `hostname`: Specifies the real host name to log into. This can be used to specify nicknames or abbreviations for hosts. Arguments to HostName accept the tokens described in the TOKENS section of `ssh_config manpage`. Numeric IP addresses are also permitted (both on the command line and in HostName specifications). The default is the name given on the command line.
+* `port`: Specifies the port number to connect on the remote host. The default is 22.
+* `host_key_alias`: Specifies an alias that should be used instead of the real host name when looking up or saving the host key in the host key database files. This option is useful for tunneling SSH connections or for multiple servers running on a single host.
+* `strict_host_key`: If this property is set to `True`, ssh will never automatically add host keys to the `~/.ssh/known_hosts` file, and refuses to connect to hosts whose host key has changed. This provides maximum protection against trojan horse attacks, though it can be annoying when the `/etc/ssh/ssh_known_hosts` file is poorly maintained or when connections to new hosts are frequently made. This option forces the user to manually add all new hosts. If this property is set to `False`, ssh will automatically add new host keys to the user known hosts files.
+* `user`: Specifies the user to log in as. This can be useful when a different user name is used on different machines. This saves the trouble of having to remember to give the user name on the command line.
+* `forward_agent`: Specifies whether the connection to the authentication agent (if any) will be forwarded to the remote machine. The property must be `True` or `False` (the default). Agent forwarding should be enabled with caution. Users with the ability to bypass file permissions on the remote host (for the agent's Unix-domain socket) can access the local agent through the forwarded connection. An attacker cannot obtain key material from the agent, however they can perform operations on the keys that enable them to authenticate using the identities loaded into the agent.
+* `identity_file`: Specifies a file from which the user's DSA, ECDSA, Ed25519 or RSA authentication identity is read. It should be located in the users `~/.ssh` directory. If no certificates have been explicitly specified by `certificate_file`, ssh will try to load certificate information from the filename obtained by appending -cert.pub to the path of a specified IdentityFile. IdentityFile may also be used in conjunction with CertificateFile in order to provide any certificate also needed for authentication with the identity.
+* `certificate_file`: Specifies a file from which the user's certificate is read. It should be located in the users `~/.ssh` directory. A corresponding private key must be provided separately in order to use this certificate either from an `identity_file` property or -i flag to ssh, via ssh-agent, or via a PKCS11Provider.
+* `local_forwards`: Specifies that a TCP port on the local machine be forwarded over the secure channel to the specified host and port from the remote machine. IPv6 addresses can be specified by enclosing addresses in square brackets. Multiple forwardings may be specified as different items of this list, and additional forwardings can be given on the command line. `local_port` indicates the local port to use. Only the superuser can forward privileged ports. An explicit `local_address` may be used to bind the connection to a specific address. The `local_address` of localhost indicates that the listening port be bound for local use only, while an empty address or ‘\*’ indicates that the port should be available from all interfaces. `remote_port` indicates the remote port to use as the other end of the tunnel and `remote_address` allows to override `127.0.0.1` as the remote IP address.
+* `remote_forwards`: Specifies that the `remote_port` TCP port on the remote machine be forwarded over the secure channel to the specified `local_address` host and `local_port` port from the local machine. IPv6 addresses can be specified by enclosing addresses in square brackets. Multiple forwardings may be specified as different items of this list, and additional forwardings can be given on the command line. Privileged ports can be forwarded only when logging in as root on the remote machine. If the `remote_address` is not specified or it is ‘\*’, then the forwarding is requested to listen on all interfaces.
+* `dynamic_forwards`: Specifies that a `local_port` TCP port on the local machine be forwarded over the secure channel, and the application protocol is then used to determine where to connect to from the remote machine. IPv6 addresses can be specified by enclosing addresses in square brackets. An explicit `local_address` may be used to bind the connection to a specific address. The `local_address` of localhost indicates that the listening port be bound for local use only, while an empty address or ‘\*’ indicates that the port should be available from all interfaces. Currently the SOCKS4 and SOCKS5 protocols are supported, and ssh will act as a SOCKS server. Multiple forwardings may be specified as different items of this list, and additional forwardings can be given on the command line. Only the superuser can forward privileged ports.
+* `extra_configs`: Dictionary of OpenSSH configurations that does not have a property on this role. The OpenSSH option name should be used as key of the item and the desired value as its value.
+* `aliases`: List of aliases for the connection. The role will create new `Host` entries using this aliases and the configurations of the other properties of the list item.
 
     ssh_client_known_hosts:
       - hostnames:

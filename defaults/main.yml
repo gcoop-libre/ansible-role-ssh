@@ -14,15 +14,47 @@ ssh_server_revoked_keys_path: "{{ ssh_role_files }}"
 ssh_client: False
 
 ssh_client_ipv6_enable: False
-ssh_client_remote_hosts: []
-ssh_client_ports:
-  - 22
-ssh_client_identities: []
 ssh_client_cbc_required: False
 ssh_client_weak_hmac: False
 ssh_client_weak_kex: False
 ssh_client_password_login: False
+ssh_client_control_master: auto
+ssh_client_control_path: "~/.ssh/.master-%r@%h:%p"
+ssh_client_escape_char: ~
+ssh_client_visual_host_key: yes
 ssh_client_roaming: False
+ssh_client_extra_configs: {}
+# Available properties
+# LogLevel: FATAL
+ssh_client_remote_hosts: []
+# Available properties
+# - name: hostname
+#   hostname: 192.168.10.10
+#   port: 22 (Default)
+#   host_key_alias: hostname.example.com
+#   strict_host_key: True (Default)
+#   user: debian
+#   forward_agent: False (Default)
+#   identity_file: id_rsa
+#   certificate_file: id_rsa-cert.pub
+#   local_forwards:
+#     - local_port: 1234
+#       local_address: '' (Default)
+#       remote_port: 80
+#       remote_address: 127.0.0.1 (Default)
+#   remote_forwards:
+#     - remote_port: 1234
+#       remote_address: '' (Default)
+#       local_port: 80
+#       local_address: 127.0.0.1 (Default)
+#   dynamic_forwards:
+#     - local_port: 1234
+#       local_address: '' (Default)
+#   extra_configs:
+#     LogLevel: FATAL
+#   aliases:
+#     - web.example.com
+#     - www.example.com
 
 ssh_client_known_hosts: []
 # Available properties
