@@ -1,0 +1,7 @@
+# {{ ansible_managed }}
+
+# This is the ssh known hosts system-wide file.
+
+{% for ssh_known_host in ssh_client_known_hosts %}
+{% if ssh_known_host.cert_authority | default(False) %}@cert-authority {% elif ssh_known_host.revoked | default(False) %}@revoked {% endif %}{{ ssh_known_host.hostnames | join(',') }} {{ ssh_known_host.keytype }} {{ ssh_known_host.key }} {{ ssh_known_host.comment | default('') }}
+{% endfor %}

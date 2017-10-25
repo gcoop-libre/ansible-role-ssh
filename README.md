@@ -90,6 +90,28 @@ Enables interactive login on the OpenSSH client.
 
 Enables experimental client roaming. This is known to cause potential issues with secrets being disclosed to malicious servers and defaults to being disabled.
 
+    ssh_client_known_hosts:
+      - hostnames:
+          - host.example.com
+          - *.pattern
+          - hostname-hash
+        cert_authority: False
+        revoked: False
+        keytype: ssh-rsa
+        key: AAAAB3NzaC1yc2EAAAADAQABAAABAQDrGDvCxePm839ib0zKw5IXPZbFpK9mGa3C+PddxCjDREwqJXN0yCmB+cmyMrHveVoQcFBg/jCXCqVdkT1GuFCGAvBh2Ejvs2NyGX089m1Crk+f1b1E6b9jMFD3WVZrY0PLCjbbo5MBVLBj5WWthxUvAaeC7wrwqK2bOQi6KZroHNNCagEKEDCpDXLMWGO5TOCPXzHGoqMAcnyZ+9E1bqnKfVU+FhtxYWJq/M6fkXXDzM8AEbLd1D3YHYVu45dkbbrMyL940a1uadnbNS1hqz8OGsnejvoJLeUhI4EeJg88KIp5Owq37SV5VqBTkVTRN5fJl4Bz2dvCLffddWPK8psd
+        comment: ''
+
+List of host keys that should be added to the global known hosts file (`/etc/ssh/ssh_known_hosts`). The available properties of each list item are:
+
+* `hostnames`: List of hostnames that will match against the key. Each item can be a complete hostname or IP, a regular expression to match against the `Hostname` or `HostKeyAlias` or a hash of the hostname.
+* `cert_authority`: Indicates that the key is the public key of a Certificate Authority used to sign the host keys.
+* `revoked`: Indicate that the key is revoked and must not ever be accepted.
+* `keytype`: Type of the SSH key. It can be obtained directly from the public host or Certificate Authority key.
+* `key`: Public key of the host or Certificate Authority. It can be obtained directly from the public host or Certificate Authority key.
+* `comment`: Comment for the key.
+
+There is more information about the known hosts file on the [SSHd manpage](https://man.openbsd.org/sshd.8#SSH_KNOWN_HOSTS_FILE_FORMAT).
+
     ssh_server: False
 
 This property enables the configuration of the host as an OpenSSH server.

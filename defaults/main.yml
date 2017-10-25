@@ -24,6 +24,18 @@ ssh_client_weak_kex: False
 ssh_client_password_login: False
 ssh_client_roaming: False
 
+ssh_client_known_hosts: []
+# Available properties
+# - hostnames:
+#     - host.example.com
+#     - *.pattern
+#     - hostname-hash
+#   cert_authority: False
+#   revoked: False
+#   keytype: ssh-rsa
+#   key: AAAAB3NzaC1yc2EAAAADAQABAAABAQDrGDvCxePm839ib0zKw5IXPZbFpK9mGa3C+PddxCjDREwqJXN0yCmB+cmyMrHveVoQcFBg/jCXCqVdkT1GuFCGAvBh2Ejvs2NyGX089m1Crk+f1b1E6b9jMFD3WVZrY0PLCjbbo5MBVLBj5WWthxUvAaeC7wrwqK2bOQi6KZroHNNCagEKEDCpDXLMWGO5TOCPXzHGoqMAcnyZ+9E1bqnKfVU+FhtxYWJq/M6fkXXDzM8AEbLd1D3YHYVu45dkbbrMyL940a1uadnbNS1hqz8OGsnejvoJLeUhI4EeJg88KIp5Owq37SV5VqBTkVTRN5fJl4Bz2dvCLffddWPK8psd
+#   comment: ''
+
 ssh_server: False
 
 ssh_server_regenerate_moduli: False
