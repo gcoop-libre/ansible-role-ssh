@@ -3,7 +3,7 @@ SSH
 
 Configure a host as an OpenSSH server and / or client.
 
-If you choose to generate a Host Certificate, you should add the Certificate Authority Public Key to your `know_hosts` file, so the Host Key will be automatically accepted.
+If you choose to generate a Host Certificate, you should add the Certificate Authority Public Key to your `known_hosts` file, so the Host Key will be automatically accepted.
 
     @cert-authority *.example.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCxC+gikReZlWEnZhKkGzhcNeRD3dKh0L1opw4/LQJcUPfRj07E3ambJfKhX/+G4gfrKZ/ju0nanbq+XViNA4cpTIJq6xVk1uVvnQVOi09p4SIyqffahO9S+GxGj8apv7GkailNyYvoMYordMbIx8UVxtcTR5AeWZMAXJM6GdIyRkKxH0/Zm1r9tsVPraaMOsKc++8isjJilwiQAhxdWVqvojPmXWE6V1R4E0wNgiHOZ+Wc72nfHh0oivZC4/i3JuZVH7kIDb+ugbsL8zFfauDevuxWeJVWn8r8SduMUVTMCzlqZKlhWb4SNCfv4j7DolKZ+KcQLbAfwybVr3Jy5dSl Host Certificate Authority
 
