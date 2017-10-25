@@ -15,7 +15,7 @@
   when: ca_key | length > 0 and cert_regenerate
 
 - name: "{{ key_user }}: Sign key"
-  command: ssh-keygen -s {{ ca_key }} -P '{{ ca_passphrase }}' -I {{ key_user + '-' + ansible_date_time.date }} -n {{ key_user }} -O clear {% if cert_command | length > 0 %}-O force-command="{{ cert_command }}"{% endif %} {% if cert_sources | length > 0 %}-O source-address={{ cert_sources | join(',') }}{% endif %} {% for cert_option in cert_options_available %}-O {% if cert_options[cert_option] | default(cert_options_default[cert_option]) %}{{ 'permit-' + cert_option }}{% else %}{{ 'no-' + cert_option }}{% endif %} {% endfor %} {% if cert_validity | length > 0 %}-V +{{ cert_validity }}{% endif %} -C "{{ key_user }}" {{ key_path }}/{{ key_file + '.pub' }}
+  command: ssh-keygen -s {{ ca_key }} -P '{{ ca_passphrase }}' -I {{ cert_id }} -n {{ key_user }} -O clear {% if cert_command | length > 0 %}-O force-command="{{ cert_command }}"{% endif %} {% if cert_sources | length > 0 %}-O source-address={{ cert_sources | join(',') }}{% endif %} {% for cert_option in cert_options_available %}-O {% if cert_options[cert_option] | default(cert_options_default[cert_option]) %}{{ 'permit-' + cert_option }}{% else %}{{ 'no-' + cert_option }}{% endif %} {% endfor %} {% if cert_validity | length > 0 %}-V +{{ cert_validity }}{% endif %} -C "{{ key_user }}" {{ key_path }}/{{ key_file + '.pub' }}
   args:
     creates: "{{ key_path }}/{{ key_file + '-cert.pub' }}"
   delegate_to: localhost

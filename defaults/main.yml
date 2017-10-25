@@ -56,6 +56,7 @@ ssh_server_user_keys: []
 # - user: username
 #   passphrase: h4rdPa55phras3 (Optional)
 #   certificate_authority: ca_name
+#   certificate_id: username-{{ ansible_date_time.date }}
 #   certificate_regenerate: "{{ ssh_server_user_certificate_regenerate }}" (Default)
 #   certificate_command: 'echo No login'
 #   certificate_sources:
