@@ -40,6 +40,7 @@
     key_path: "{{ ssh_keygen_user_keys_path }}"
     key_file: "{{ ssh_server_user_key.file | default(ssh_server_user_key.user) }}"
     cert_regenerate: "{{ ssh_server_user_key.certificate_regenerate | default(ssh_server_user_certificate_regenerate) }}"
+    cert_id: "{{ ssh_server_user_key.certificate_id | default(ssh_server_user_key.user + '-' + ansible_date_time.date) }}"
     cert_command: "{{ ssh_server_user_key.certificate_command | default('') }}"
     cert_sources: "{{ ssh_server_user_key.certificate_sources | default([]) }}"
     cert_options: "{{ ssh_server_user_key.certificate_options | default([]) }}"

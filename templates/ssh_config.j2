@@ -8,20 +8,6 @@
 
 # Address family should always be limited to the active network configuration.
 AddressFamily {{ 'any' if ssh_client_ipv6_enable else 'inet' }}
-# Restrict the following configuration to be limited to this Host.
-{% for host in ssh_client_remote_hosts -%}
-Host {{ host }}
-{% endfor %}
-
-# The port at the destination should be defined
-{% for port in ssh_client_ports -%}
-Port {{ port }}
-{% endfor %}
-
-# Identity file configuration. You may restrict available identity files. Otherwise ssh will search for a pattern and use any that matches.
-{% for identity_file in ssh_client_identities -%}
-IdentityFile ~/.ssh/{{ identity_file }}
-{% endfor %}
 
 # Security configuration
 # ======================
@@ -120,14 +106,88 @@ Tunnel no
 # Disable local command execution.
 PermitLocalCommand no
 
+{% if ssh_client_control_master | length > 0 %}
+# Control connection configuration
+# ================================
+
+ControlMaster {{ ssh_client_control_master }}
+ControlPath {{ ssh_client_control_path if ssh_client_control_path | length > 0 else 'none' }}
+
+{% endif %}
 # Misc. configuration
 # ===================
 
 # Enable compression. More pressure on the CPU, less on the network.
 Compression yes
 
-#EscapeChar ~
-#VisualHostKey yes
+EscapeChar {{ ssh_client_escape_char }}
+VisualHostKey {{ 'yes' if ssh_client_visual_host_key else 'no' }}
 
 # Disable experimental client roaming. This is known to cause potential issues with secrets being disclosed to malicious servers and defaults to being disabled.
 UseRoaming {{ 'yes' if ssh_client_roaming else 'no' }}
+
+{% if ssh_client_extra_configs | length > 0 %}
+{% for key, value in ssh_client_extra_configs.iteritems() %}
+{{ key }} {{ value }}
+{% endfor %}
+
+{% endif %}
+{% if ssh_client_remote_hosts | length > 0 %}
+# SSH connections
+# ===============
+
+{% macro ssh_connection_config(config) %}
+{% if (config.hostname | default('')) | length > 0 %}
+  Hostname {{ config.hostname }}
+{% endif %}
+  Port {{ config.port | default('22') }}
+{% if (config.host_key_alias | default('')) | length > 0 %}
+  HostKeyAlias {{ config.host_key_alias }}
+{% endif %}
+  StrictHostKeyChecking {{ 'yes' if config.strict_host_key | default(True) else 'no' }}
+{% if (config.user | default('')) | length > 0 %}
+  User {{ config.user }}
+{% endif %}
+  ForwardAgent {{ 'yes' if config.forward_agent | default(False) else 'no' }}
+  IdentitiesOnly yes
+{% if (config.identity_file | default('')) | length > 0 %}
+  IdentityFile ~/.ssh/{{ config.identity_file }}
+{% if (config.certificate_file | default('')) | length > 0 %}
+  CertificateFile ~/.ssh/{{ config.certificate_file }}
+{% endif %}
+{% endif %}
+{% if (config.local_forwards | default([])) | length > 0 %}
+{% for local_forward in config.local_forwards %}
+  LocalForward {% if (local_forward.local_address | default('')) | length > 0 %}{{ local_forward.local_address }}:{% endif %}{{ local_forward.local_port }} {{ local_forward.remote_address | default('127.0.0.1') }}:{{ local_forward.remote_port }}
+{% endfor %}
+{% endif %}
+{% if (config.remote_forwards | default([])) | length > 0 %}
+{% for remote_forward in config.remote_forwards %}
+  RemoteForward {% if (remote_forward.remote_address | default('')) | length > 0 %}{{ remote_forward.remote_address }}:{% endif %}{{ remote_forward.remote_port }} {{ remote_forward.local_address | default('127.0.0.1') }}:{{ remote_forward.local_port }}
+{% endfor %}
+{% endif %}
+{% if (config.dynamic_forwards | default([])) | length > 0 %}
+{% for dynamic_forward in config.dynamic_forwards %}
+  DynamicForward {% if (dynamic_forward.local_address | default('')) | length > 0 %}{{ dynamic_forward.local_address }}:{% endif %}{{ dynamic_forward.local_port }}
+{% endfor %}
+{% endif %}
+{% if config.extra_configs | length > 0 %}
+{% for key, value in config.extra_configs.iteritems() %}
+{{ key }} {{ value }}
+{% endfor %}
+{% endif %}
+{% endmacro %}
+{% for ssh_host in ssh_client_remote_hosts -%}
+Host {{ ssh_host.name }}
+{{ ssh_connection_config(ssh_host) }}
+
+{% if (ssh_host.aliases | default([])) | length > 0 %}
+{% for ssh_host_alias in ssh_host.aliases %}
+Host {{ ssh_host_alias }}
+# Alias of Host {{ ssh_host.name }}
+{{ ssh_connection_config(ssh_host) }}
+
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
