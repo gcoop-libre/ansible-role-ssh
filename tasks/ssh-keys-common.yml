@@ -19,6 +19,18 @@
   delegate_to: localhost
   become: no
 
+- name: Ensure custom User Keys directories
+  file:
+    path: "{{ ssh_server_user_ca.value.path }}"
+    mode: '0700'
+    state: directory
+  delegate_to: localhost
+  with_dict: "{{ ssh_server_user_cas }}"
+  loop_control:
+    loop_var: ssh_server_user_ca
+    label: "{{ ssh_server_user_ca.key }}"
+  when: ssh_server_user_cas | length > 0 and ssh_server_user_ca.value.path is defined
+
 - name: Ensure Certificate Authority Keys directory
   file:
     path: "{{ ssh_ca_path }}"
