@@ -25,6 +25,7 @@
     mode: '0700'
     state: directory
   delegate_to: localhost
+  become: no
   with_dict: "{{ ssh_server_user_cas }}"
   loop_control:
     loop_var: ssh_server_user_ca
