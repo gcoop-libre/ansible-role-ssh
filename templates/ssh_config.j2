@@ -173,7 +173,7 @@ UseRoaming {{ 'yes' if ssh_client_roaming else 'no' }}
 {% endif %}
 {% if config.extra_configs | length > 0 %}
 {% for key, value in config.extra_configs.iteritems() %}
-{{ key }} {{ value }}
+  {{ key }} {{ value }}
 {% endfor %}
 {% endif %}
 {% endmacro %}
