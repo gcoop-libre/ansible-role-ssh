@@ -81,7 +81,7 @@ Enables the sharing of multiple sessions over a single network connection. Valid
 
 Specify the path to the control socket used for connection sharing. An empty string will disable connection sharing.
 
-    ssh_client_escape_char: ~
+    ssh_client_escape_char: '~'
 
 Sets the escape character. The value should be a single character or `none` to disable the escape character entirely (making the connection transparent for binary data).
 

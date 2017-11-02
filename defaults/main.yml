@@ -20,7 +20,7 @@ ssh_client_weak_kex: False
 ssh_client_password_login: False
 ssh_client_control_master: auto
 ssh_client_control_path: "~/.ssh/.master-%r@%h:%p"
-ssh_client_escape_char: ~
+ssh_client_escape_char: '~'
 ssh_client_visual_host_key: yes
 ssh_client_roaming: False
 ssh_client_extra_configs: {}
