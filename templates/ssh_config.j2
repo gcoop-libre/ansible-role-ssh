@@ -171,7 +171,7 @@ UseRoaming {{ 'yes' if ssh_client_roaming else 'no' }}
   DynamicForward {% if (dynamic_forward.local_address | default('')) | length > 0 %}{{ dynamic_forward.local_address }}:{% endif %}{{ dynamic_forward.local_port }}
 {% endfor %}
 {% endif %}
-{% if config.extra_configs | length > 0 %}
+{% if (config.extra_configs | default([])) | length > 0 %}
 {% for key, value in config.extra_configs.iteritems() %}
   {{ key }} {{ value }}
 {% endfor %}
